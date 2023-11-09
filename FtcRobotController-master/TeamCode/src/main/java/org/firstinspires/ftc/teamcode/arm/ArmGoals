@@ -1,0 +1,7 @@
+package org.firstinspires.ftc.teamcode.arm;
+
+public class ArmGoals {
+    double targetAngleElbow; // Arm One Angle in radians
+    double targetAngleWrist; // Arm Two Angle in radians
+    double LinearSlideExtension; // linear slide distance in inches
+}
