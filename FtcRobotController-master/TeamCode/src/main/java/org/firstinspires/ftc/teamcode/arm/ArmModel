@@ -1,0 +1,67 @@
+package org.firstinspires.ftc.teamcode.arm;
+
+public class ArmModel {
+    // Arm One's CURRENT known values
+    final double arm_one_len = 4; // Inches
+    double arm_one_ang_in_degrees = 30; // Degrees
+
+    // Arm Two's CURRENT known values
+    final double arm_two_len = 4; // Inches
+    double arm_two_ang_in_degrees = 30; // Degrees
+
+    // The dimensions of our CURRENT ROBOT
+    final double x_space_available = 18; // Inches
+    double y_space_available = 12; // Inches
+    final double robot_base_height = 3; // Inches; Distance from the ground to the start of the Linear Slide
+    final double height_base_to_slide_top = 9; // TODO: MEASURE THIS
+    final double board_angle_in_radians = Math.toRadians(60);
+    final double board_supplementary_in_radians = Math.toRadians(180) - board_angle_in_radians;
+
+    // Robot Intake details
+    double intake_cutoff_dist = 8; // Inches
+    double intake_angle = 10; // Degrees; The slope of the intake before cutoff
+    double intake_spinner_height = 3; // Inches
+    double intake_spinner_radius = 5; // Inches
+
+    // Linear Slide CURRENT known values
+    double min_len_of_slide = 10.5; // Inches; Size of the Linear Slide fully compressed
+    double max_len_of_slide = 23; // Inches; Size of the Linear Slide fully enlarged
+    double slide_dist_from_intake = 11; // Inches; The distance from the intake edge of the robot to the base of the Linear Slide
+    double x_distance_from_pivot_to_front = 0; //TODO: MEASURE THIS
+
+    public ArmGoals calculateArmPos(double distanceToTarget)
+    {
+        ArmGoals goals = new ArmGoals();
+        goals.targetAngleElbow = find_arm_one_ang_goal(distanceToTarget);
+        goals.targetAngleWrist = find_arm_two_ang_goal();
+        goals.LinearSlideExtension = find_linear_slide_extension();
+        return goals;
+    }
+
+    public double find_arm_one_ang_goal(double distanceToTarget)
+    {
+        double heightOfPivotPoint = robot_base_height + height_base_to_slide_top;
+        // Calculate the x distance from the pivot point on the robot's elbow after arm2's x-length is coaxed out.
+        double pivot_point_to_board_placement = distanceToTarget + x_distance_from_pivot_to_front - (arm_two_len * Math.cos(board_angle_in_radians));
+        // calculate the diagonal distance for an imaginary triangle for further math later.
+        double magical_diagonal_distance = Math.sqrt(pivot_point_to_board_placement * pivot_point_to_board_placement + heightOfPivotPoint * heightOfPivotPoint);
+        double angle_of_intercept_from_pivot_to_base_of_scale_in_radians = Math.atan(heightOfPivotPoint / pivot_point_to_board_placement);
+        double magical_not_supplementary_angle_in_radians = board_supplementary_in_radians - angle_of_intercept_from_pivot_to_base_of_scale_in_radians;
+        double diagonal_distance_from_arm_intercept_to_base_of_board = Math.sqrt(((magical_diagonal_distance * magical_diagonal_distance) + (arm_one_len * arm_one_len)
+                - 2 * magical_diagonal_distance * arm_one_len * Math.cos(magical_not_supplementary_angle_in_radians)));
+        
+        double angle_to_offset_arm_intercept_in_radians = (diagonal_distance_from_arm_intercept_to_base_of_board * Math.sin(angle_of_intercept_from_pivot_to_base_of_scale_in_radians)) / arm_one_len;
+        double angle_for_arm_to_ground_in_radians = Math.atan(pivot_point_to_board_placement / heightOfPivotPoint) + angle_to_offset_arm_intercept_in_radians; 
+        
+        return angle_for_arm_to_ground_in_radians - Math.toRadians(90);
+    }
+
+    public double find_arm_two_ang_goal()
+    {
+
+    }
+
+    public double find_linear_slide_extension()
+    {
+
+    }
