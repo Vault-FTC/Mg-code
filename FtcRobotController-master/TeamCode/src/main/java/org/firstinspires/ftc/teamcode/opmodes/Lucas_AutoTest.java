@@ -108,15 +108,15 @@ public class Lucas_AutoTest extends LinearOpMode {
             double axial = 0;
             double lateral = 0;
             double yaw = 0;
-            int driveSpeed = 1;
+            double driveSpeed = 1;
 
             if(gamepad1.y) {
-            driveSpeed = 0.5;
+            driveSpeed =  0.5;
 
             }
-            else(
+            else
             driveSpeed = 1;
-)
+
             if(runtime.seconds() < 5.0)
             {
                 axial = driveSpeed;
