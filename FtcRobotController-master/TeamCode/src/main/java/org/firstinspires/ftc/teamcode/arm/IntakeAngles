@@ -1,0 +1,41 @@
+package org.firstinspires.ftc.teamcode;
+public class Main {
+            public static void main(String[] args) {
+                double C1 = 6.6;  // Substitute your value for C1
+                double C2 = 8.5;  // Substitute your value for C2
+                double C3 = 1;    // Substitute your value for C3
+                double C4 = Math.sin(Math.toRadians(15.3));  // Substitute your value for C4
+                double C5 = Math.cos(Math.toRadians(15.3));  // Substitute your value for C5
+                double C6 = 12.5; // Substitute your value for C6
+
+                // Define the equation in terms of a1
+                double solution = solveEquation(C1, C2, C3, C4, C5, C6);
+
+                System.out.println("The solution for a1 is: " + Math.toDegrees(solution) + " degrees");
+            }
+
+            // Define the equation function
+            public static double equation(double a1, double C1, double C2, double C3, double C4, double C5, double C6) {
+                return ((C1 - Math.sin(a1) * C2 - C3) / C4) * C5 - C6 + C2 * Math.cos(a1);
+            }
+
+            // Implement the Newton-Raphson method
+            public static double solveEquation(double C1, double C2, double C3, double C4, double C5, double C6) {
+                double x0 = 0.000;  // Initial guess for a1
+                double x1;
+                double epsilon = 0.0001; // Tolerance for convergence
+
+                do {
+                    double f = equation(x0, C1, C2, C3, C4, C5, C6);
+                    double fPrime = (equation(x0 + 0.001, C1, C2, C3, C4, C5, C6) - f) / 0.001; // Approximating derivative
+
+                    x1 = x0 - f / fPrime;
+                    if (Math.abs(x1 - x0) < epsilon) {
+                        break;
+                    }
+                    x0 = x1;
+                } while (true);
+
+                return x1 - Math.toRadians(2.5);
+            }
+        }
