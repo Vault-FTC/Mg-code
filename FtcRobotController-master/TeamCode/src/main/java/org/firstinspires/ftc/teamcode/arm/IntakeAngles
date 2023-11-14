@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.arm;
 public class Main {
             public static void main(String[] args) {
                 double C1 = 6.6;  // Substitute your value for C1
