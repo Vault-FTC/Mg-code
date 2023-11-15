@@ -25,33 +25,71 @@ public class ArmModel {
 
     // Robot Intake details
     double intake_cutoff_dist = 8; // Inches
-    double intake_angle = 10; // Degrees; The slope of the intake before cutoff
+    double intake_angle_in_radians = Math.toRadians(10); // Degrees; The slope of the intake before cutoff
     double intake_spinner_height = 3; // Inches
     double intake_spinner_radius = 5; // Inches
 
     // Linear Slide CURRENT known values
     double min_len_of_slide = 10.4; // Inches; Size of the Linear Slide fully compressed
     double max_len_of_slide = 23; // Inches; Size of the Linear Slide fully enlarged
+    double current_slide_len = 14.9;
     double slide_dist_from_intake = 11; // Inches; The distance from the intake edge of the robot to the base of the Linear Slide
     double x_distance_from_pivot_to_front = slide_dist_from_intake + min_len_of_slide * Math.cos(board_angle_in_radians)-18; // Inches
     final double height_base_to_slide_top = min_len_of_slide * Math.sin(board_angle_in_radians); // inches
 
     public ArmGoals calculateArmPos(double distanceToTarget) {
         ArmGoals goals = new ArmGoals();
-        goals.targetAngleElbow = find_arm_one_ang_goal(distanceToTarget);
-        goals.targetAngleWrist = find_arm_two_ang_goal(distanceToTarget);
+        goals.targetAngleElbow = find_arm_one_ang_goal(distanceToTarget, placing_mode , picking_up_mode , idle_mode);
+        goals.targetAngleWrist = find_arm_two_ang_goal(distanceToTarget, placing_mode , picking_up_mode , idle_mode);
         goals.LinearSlideExtension = find_linear_slide_extension();
         return goals;
     }
 
-    public double find_arm_one_ang_goal(double distance_to_target) {
+
+    public double find_arm_one_ang_goal(double distance_to_target, boolean placing_mode, boolean picking_up_mode, boolean idle_mode) {
+        if (idle_mode) {
+            return find_arm_one_idle_ang_goal();
+
+        } else if (picking_up_mode) {
+            return find_arm_one_picking_up_ang_goal();
+
+        } else if (placing_mode) {
+            return find_arm_one_placing_ang_goal(distance_to_target);
+
+        } else {
+            return 0;
+        }
+    }
+
+
+    public double find_arm_two_ang_goal(double distance_to_target, boolean placing_mode, boolean picking_up_mode, boolean idle_mode) {
+        if (idle_mode) {
+            return find_arm_two_idle_ang_goal();
+
+        } else if (picking_up_mode) {
+            return find_arm_two_picking_up_ang_goal();
+
+        } else if (placing_mode) {
+            return find_arm_two_placing_ang_goal(distance_to_target);
+
+        } else {
+            return 0;
+        }
+
+    }
+
+
+
+
+    // PLACING ARM GOAL ANGLES
+    public double find_arm_one_placing_ang_goal(double distance_to_target) {
         double pivot_point_height = robot_base_height + height_base_to_slide_top;
         // Find the x distance from the pivot point on the robot's elbow after arm2's x-length is coaxed out.
         double pivot_point_to_board_placement = distance_to_target + x_distance_from_pivot_to_front - (arm_two_len * Math.cos(board_angle_in_radians));
         double magical_diagonal_distance = Math.sqrt( (pivot_point_height * pivot_point_height) + (pivot_point_to_board_placement * pivot_point_to_board_placement) );
 
         if (pivot_point_to_board_placement >= 0) {
-            // THE FOLLOWING HAS REFERENCES TO A PICTURE! TALK TO DAVID FOR THESE REFERENCES!
+            // THE FOLLOWING HAS REFERNCES TO A PICTURE! TALK TO DAVID FOR THESE REFERENCES!
 
             // Theta one
             double base_ang_for_magic_diagonal = Math.atan((pivot_point_height / pivot_point_to_board_placement));
@@ -90,16 +128,62 @@ public class ArmModel {
         }
 
 
-    }
+    }// PLACING ARM GOAL ANGLES
+    public double find_arm_two_placing_ang_goal(double distance_to_target) {
+        return -find_arm_one_placing_ang_goal(distance_to_target) + Math.toRadians(60);
+    } // PLACING ARM GOAL ANGLES
 
-    public double find_arm_two_ang_goal(double distance_to_target) {
-        // Arm two angle is referred to where 0 degrees is the perpendicular line to Arm one
-        return -find_arm_one_ang_goal(distance_to_target) + Math.toRadians(60);
-    }
+
+
+
+
+    // PICKING UP ARM GOAL ANGLES
+    public double find_arm_one_picking_up_ang_goal() {
+
+
+        double C1 = robot_base_height + current_slide_len * Math.sin(board_angle_in_radians);
+        double C2 = arm_one_len;
+        double C3 = arm_two_len * Math.cos(intake_angle_in_radians);
+        double C4 = Math.sin(intake_angle_in_radians);
+        double C5 = Math.cos(intake_angle_in_radians);
+        double C6 = intake_cutoff_dist + slide_dist_from_intake + current_slide_len * Math.cos(board_angle_in_radians);
+
+        double x0 = 0.000;
+        double x1;
+        double epsilon = 0.0001;
+
+        do {
+            double f = ((C1 - Math.sin(x0) * C2 - C3) / C4) * C5 - C6 + C2 * Math.cos(x0);
+            double fPrime = (((C1 - Math.sin(x0 + 0.001) * C2 - C3) / C4) * C5 - C6 + C2 * Math.cos(x0 + 0.001) - f) / 0.001;
+
+            x1 = x0 - f / fPrime;
+            if (Math.abs(x1 - x0) < epsilon) {
+                break;
+            }
+            x0 = x1;
+        } while (true);
+
+        return x1 + Math.toRadians(180);
+    }// PICKING UP ARM GOAL ANGLES
+    public double find_arm_two_picking_up_ang_goal() {
+        return Math.toRadians(180)-(Math.toRadians(60) - (find_arm_one_picking_up_ang_goal() - Math.toRadians(180)) + Math.toRadians(120));
+    }// PICKING UP ARM GOAL ANGLES
+
+
+
+
+    // IDLE ARM GOAL ANGLES
+    public double find_arm_one_idle_ang_goal () {
+        return Math.toRadians(arm_one_ang_in_degrees);
+    } // IDLE ARM GOAL ANGLES
+
+    public double find_arm_two_idle_ang_goal () {
+        return Math.toRadians(arm_two_ang_in_degrees);
+    } // IDLE ARM GOAL ANGLES
+
 
     public double find_linear_slide_extension() {
-        // This is given my the user
+        return 0; //TODO : CONNECT THIS VALUE TO CONTROLER
+    } // IDLE ARM GOAL ANGLES
 
-        return 0;
-    }
 }
