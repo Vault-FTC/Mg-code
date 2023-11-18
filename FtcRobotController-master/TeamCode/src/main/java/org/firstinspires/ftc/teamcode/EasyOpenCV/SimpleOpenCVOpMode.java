@@ -46,7 +46,13 @@ public class SimpleOpenCVOpMode extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Image Analysis:",pipeline.getAnalysis());
+        telemetry.addData("Image Analysis:",pipeline.getYAnalysis());
+
+
+        telemetry.addData("Image Analysis:",pipeline.getCrAnalysis());
+
+
+        telemetry.addData("Image Analysis:",pipeline.getCbAnalysis());
         telemetry.update();
     }
 
@@ -57,8 +63,11 @@ class SamplePipeline extends OpenCvPipeline {
 
     Mat YCrCb = new Mat();
     Mat Y = new Mat();
-    int avg;
-
+    Mat Cr = new Mat();
+    Mat Cb = new Mat();
+    int avg0;
+    int avg1;
+    int avg2;
 
     /*
      * This function takes the RGB frame, converts to YCrCb,
@@ -69,7 +78,8 @@ class SamplePipeline extends OpenCvPipeline {
         ArrayList<Mat> yCrCbChannels = new ArrayList<Mat>(3);
         Core.split(YCrCb, yCrCbChannels);
         Y = yCrCbChannels.get(0);
-
+        Cr = yCrCbChannels.get(1);
+        Cb = yCrCbChannels.get(2);
     }
     @Override
     public void init(Mat firstFrame) {
@@ -80,13 +90,23 @@ class SamplePipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
         inputToY(input);
         System.out.println("processing requested");
-        avg = (int) Core.mean(Y).val[0];
+        avg0 = (int) Core.mean(Y).val[0];
+        avg1 = (int) Core.mean(Cb).val[0];
+        avg2 = (int) Core.mean(Cr).val[0];
         YCrCb.release(); // don't leak memory!
         Y.release(); // don't leak memory!
+        Cr.release(); // don't leak memory!
+        Cb.release(); // don't leak memory!
         return input;
     }
 
-    public int getAnalysis() {
-        return avg;
+    public int getYAnalysis() {
+        return avg0;
     }
+    public int getCrAnalysis() {
+        return avg1;
+    }
+    public int getCbAnalysis() {return avg2;}
+
+
 }
