@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.arm;
 public class ArmModel {
 
     // IS THE ARM PLACING OR PICKING UP
-    boolean placing_mode = true;
-    boolean picking_up_mode = false;
-    boolean idle_mode = false;
+    int mode = 0
+    //idle_mode = 0;
+    //picking_up_mode = 1;
+    //placing_mode = 2;
+   
 
     // Arm One's CURRENT known values
     final double arm_one_len = 12; // Inches
@@ -47,33 +49,42 @@ public class ArmModel {
 
 
     public double find_arm_one_ang_goal(double distance_to_target, boolean placing_mode, boolean picking_up_mode, boolean idle_mode) {
-        if (idle_mode) {
-            return find_arm_one_idle_ang_goal();
 
-        } else if (picking_up_mode) {
-            return find_arm_one_picking_up_ang_goal();
+        //idle_mode = 0;
+        //picking_up_mode = 1;
+        //placing_mode = 2;
 
-        } else if (placing_mode) {
-            return find_arm_one_placing_ang_goal(distance_to_target);
+        switch( mode ) {
+            case 0:  
+                return find_arm_one_idle_ang_goal();
+                break;
 
-        } else {
-            return 0;
-        }
-    }
+            case 1:
+                return find_arm_one_picking_up_ang_goal();
+                break;
 
+            case 2:
+                return find_arm_one_placing_ang_goal(distance_to_target)
+                break;
+            }
 
     public double find_arm_two_ang_goal(double distance_to_target, boolean placing_mode, boolean picking_up_mode, boolean idle_mode) {
-        if (idle_mode) {
-            return find_arm_two_idle_ang_goal();
 
-        } else if (picking_up_mode) {
-            return find_arm_two_picking_up_ang_goal();
+        //idle_mode = 0;
+        //picking_up_mode = 1;
+        //placing_mode = 2;
 
-        } else if (placing_mode) {
-            return find_arm_two_placing_ang_goal(distance_to_target);
+       switch( mode ) {
+            case 0:
+              return find_arm_two_idle_ang_goal();  
+              break;
+            case 1:
+               return find_arm_two_picking_up_ang_goal();
+               break;
+            case 2:
+               return find_arm_two_placing_ang_goal(distance_to_target);
+               break;
 
-        } else {
-            return 0;
         }
 
     }
