@@ -73,7 +73,7 @@ class SamplePipeline extends OpenCvPipeline {
      * This function takes the RGB frame, converts to YCrCb,
      * and extracts the Y channel to the 'Y' variable
      */
-    void inputToY(Mat input) {
+    void inputToYCrCb(Mat input) {
         Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
         ArrayList<Mat> yCrCbChannels = new ArrayList<Mat>(3);
         Core.split(YCrCb, yCrCbChannels);
@@ -83,12 +83,12 @@ class SamplePipeline extends OpenCvPipeline {
     }
     @Override
     public void init(Mat firstFrame) {
-        inputToY(firstFrame);
+        inputToYCrCb(firstFrame);
     }
 
     @Override
     public Mat processFrame(Mat input) {
-        inputToY(input);
+        inputToYCrCb(input);
         System.out.println("processing requested");
         avg0 = (int) Core.mean(Y).val[0];
         avg1 = (int) Core.mean(Cb).val[0];
@@ -99,7 +99,7 @@ class SamplePipeline extends OpenCvPipeline {
         Cb.release(); // don't leak memory!
         return input;
     }
-
+    
     public int getYAnalysis() {
         return avg0;
     }
