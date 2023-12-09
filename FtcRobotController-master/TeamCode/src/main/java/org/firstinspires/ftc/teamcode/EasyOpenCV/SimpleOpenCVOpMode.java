@@ -99,7 +99,7 @@ class SamplePipeline extends OpenCvPipeline {
         Cb.release(); // don't leak memory!
         return input;
     }
-    
+
     public int getYAnalysis() {
         return avg0;
     }
