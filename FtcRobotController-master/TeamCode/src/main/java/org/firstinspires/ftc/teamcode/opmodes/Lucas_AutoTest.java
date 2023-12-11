@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -73,6 +75,7 @@ public class Lucas_AutoTest extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
+    @SuppressLint("SuspiciousIndentation")
     @Override
     public void runOpMode() {
 
